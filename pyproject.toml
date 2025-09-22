@@ -1,0 +1,126 @@
+# pyproject.toml
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "libero-dubhe"
+dynamic = ["version"]
+description = ""
+readme = "README.md"
+requires-python = ">=3.10, <3.11"
+authors = [{ name = "CharlesHsu", email = "charles040318@gmail.com" }]
+license = { text = "MIT" }
+
+# 运行依赖 `uv add`
+dependencies = [
+    "bddl>=3.6.0",
+    "cloudpickle>=3.1.1",
+    "easydict>=1.13",
+    "einops>=0.8.1",
+    "future>=1.0.0",
+    "gym>=0.26.2",
+    "hydra-core>=1.3.2",
+    "matplotlib>=3.10.6",
+    "numpy>=2.2.6",
+    "opencv-python>=4.12.0.88",
+    "robomimic>=0.3.0",
+    "robosuite>=1.5.1",
+    "termcolor>=3.1.0",
+    "thop>=0.1.1.post2209072238",
+    "transformers>=4.56.2",
+    "wandb>=0.22.0",
+]
+
+# 分组依赖 `pip install .[dev]`
+[project.optional-dependencies]
+example = []
+
+[project.scripts]
+example = "main:main"
+
+# ---- hatchling 构建细节 ----
+[tool.hatch.build.targets.wheel]
+packages = ["src/libero"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["tests/*", ".github/*"]
+
+[tool.hatch.version]
+source = "vcs"
+
+# ---- uv 设置 ----
+[tool.uv]
+dev-dependencies = [
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
+    "ruff>=0.13.1",
+]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+# ---- mypy 配置 ----
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_any_generics = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+show_error_codes = true
+pretty = true
+plugins = ["pydantic.mypy"]
+exclude = 'test|example'
+
+# ---- ruff 配置 ----
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "logs",
+    "data",
+    "docs",
+    "uv.lock",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+
+# ---- pytest 配置 ----
+[tool.pytest.ini_options]
+minversion = "8.0"
+
+addopts = """
+-ra
+--strict-markers
+--strict-config
+--maxfail=1
+--cov=cliniq_nexus_core --cov-report=term-missing
+--doctest-modules
+--xdoctest --xdoctest-style=google
+"""
+testpaths = ["tests"]
+pythonpath = ["src"]
+# 慢测试标记为 integration，默认可以选择跳过
+markers = ["unit: 快速单元测试", "integration: 较慢/复杂依赖测试"]
+# doctest 容错：省略号匹配/空白规整
+doctest_optionflags = "ELLIPSIS NORMALIZE_WHITESPACE"
+filterwarnings = ["error::DeprecationWarning"]
+# 日志支持
+log_cli = true
+log_cli_level = "INFO"
+# Async 支持
+asyncio_mode = "auto"

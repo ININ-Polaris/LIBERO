@@ -1,4 +1,3 @@
-import init_path
 import argparse
 import os
 import time
